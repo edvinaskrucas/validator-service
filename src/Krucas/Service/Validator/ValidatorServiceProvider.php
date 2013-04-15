@@ -41,7 +41,7 @@ class ValidatorServiceProvider extends ServiceProvider
                 $illuminateFactory->setPresenceVerifier($app['validation.presence']);
             }
 
-            return $illuminateFactory;
+            return new Factory($illuminateFactory);
         });
     }
 
