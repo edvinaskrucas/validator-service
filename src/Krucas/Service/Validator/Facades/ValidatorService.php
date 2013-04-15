@@ -11,6 +11,6 @@ class ValidatorService extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'validationservice';
+        return 'validatorservice';
     }
 }
