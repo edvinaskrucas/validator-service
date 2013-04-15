@@ -32,6 +32,9 @@ class FactoryTest extends PHPUnit_Framework_TestCase
 
         $mock = m::mock('Krucas\Service\Validator\Contracts\ValidatableInterface');
 
+        $mock->shouldReceive('getValidationAttributes')->once()->andReturn(array());
+        $mock->shouldReceive('getValidationRules')->once()->andReturn(array());
+
         $this->assertInstanceOf('Krucas\Service\Validator\Validator', $f->make($mock));
     }
 

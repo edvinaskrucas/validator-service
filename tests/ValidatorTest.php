@@ -61,6 +61,15 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     }
 
 
+    public function testGetAttributeRulesAndValueWhenItIsNotSet()
+    {
+        $s = $this->getValidatorService();
+
+        $this->assertNull($s->getAttributeRules('test'));
+        $this->assertNull($s->getAttributeValue('test'));
+    }
+
+
     public function testSetAttributeValueAndRetrieveIt()
     {
         $s = $this->getValidatorService();
@@ -218,9 +227,14 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
     public function getValidatorService()
     {
+        $mock = m::mock('Krucas\Service\Validator\Contracts\ValidatableInterface');
+
+        $mock->shouldReceive('getValidationAttributes')->once()->andReturn(array());
+        $mock->shouldReceive('getValidationRules')->once()->andReturn(array());
+
         return new \Krucas\Service\Validator\Validator(
             m::mock('Illuminate\Validation\Factory'),
-            m::mock('Krucas\Service\Validator\Contracts\ValidatableInterface')
+            $mock
         );
     }
 }

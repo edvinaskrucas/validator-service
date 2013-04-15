@@ -193,22 +193,22 @@ class Validator
      * Returns rules for a given attribute.
      *
      * @param $attribute
-     * @return string
+     * @return string|null
      */
     public function getAttributeRules($attribute)
     {
-        return $this->rules[$attribute];
+        return isset($this->rules[$attribute]) ? $this->rules[$attribute] : null;
     }
 
     /**
      * Returns value of a given attribute.
      *
      * @param $attribute
-     * @return mixed
+     * @return mixed|null
      */
     public function getAttributeValue($attribute)
     {
-        return $this->attributes[$attribute];
+        return isset($this->attributes[$attribute]) ? $this->attributes[$attribute] : null;
     }
 
     /**
