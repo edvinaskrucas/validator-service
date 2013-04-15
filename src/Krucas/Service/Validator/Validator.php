@@ -58,6 +58,9 @@ class Validator
     {
         $this->factory      = $factory;
         $this->validatable  = $validatable;
+
+        $this->attributes   = $validatable->getValidationAttributes();
+        $this->rules        = $validatable->getValidationRules();
     }
 
     /**
