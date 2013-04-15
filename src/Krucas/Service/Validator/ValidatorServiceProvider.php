@@ -2,6 +2,7 @@
 
 use Illuminate\Support\ServiceProvider;
 use Krucas\Service\Validator\Factory;
+use Illuminate\Validation\Factory as IlluminateValidationFactory;
 
 class ValidatorServiceProvider extends ServiceProvider
 {
@@ -31,7 +32,7 @@ class ValidatorServiceProvider extends ServiceProvider
     {
         $this->app['validatorservice'] = $this->app->share(function($app)
         {
-            return new Factory($app['translator']);
+            return new Factory(new IlluminateValidationFactory($app['translator']));
         });
     }
 
