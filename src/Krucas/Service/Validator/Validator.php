@@ -1,7 +1,7 @@
 <?php namespace Krucas\Service\Validator;
 
 use Illuminate\Events\Dispatcher;
-use Illuminate\Validation\Factory;
+use Illuminate\Validation\Factory as IlluminateValidationFactory;
 use Krucas\Service\Validator\Contracts\ValidatableInterface;
 
 class Validator
@@ -51,10 +51,10 @@ class Validator
     /**
      * Creates new validator service.
      *
-     * @param Factory $factory
+     * @param IlluminateValidationFactory $factory
      * @param \Krucas\Service\Validator\Contracts\ValidatableInterface $validatable
      */
-    public function __construct(Factory $factory, ValidatableInterface $validatable)
+    public function __construct(IlluminateValidationFactory $factory, ValidatableInterface $validatable)
     {
         $this->factory      = $factory;
         $this->validatable  = $validatable;
