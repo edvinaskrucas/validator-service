@@ -1,7 +1,7 @@
 <?php namespace Krucas\Service\Validator;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Validation\Factory;
+use Krucas\Service\Validator\Factory;
 
 class ValidatorServiceProvider extends ServiceProvider
 {
@@ -29,9 +29,9 @@ class ValidatorServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app['service.validator'] = $this->app->bind(function($app, $params = array())
+        $this->app['validatorservice'] = $this->app->share(function($app)
         {
-            return new Validator(new Factory($app['translator']), $params[0]);
+            return new Factory($app['translator']);
         });
     }
 
