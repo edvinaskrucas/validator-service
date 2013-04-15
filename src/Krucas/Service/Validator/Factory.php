@@ -2,25 +2,25 @@
 
 use Krucas\Service\Validator\Contracts\ValidatableInterface;
 use Krucas\Service\Validator\Validator;
-use Symfony\Component\Translation\TranslatorInterface;
+use Illuminate\Validation\Factory as IlluminateValidationFactory;
 
 class Factory
 {
     /**
-     * Translator interface implementation.
+     * Illuminate validation factory instance.
      *
-     * @var \Symfony\Component\Translation\TranslatorInterface
+     * @var \Illuminate\Validation\Factory
      */
-    protected $translator;
+    protected $factory;
 
     /**
      * Creates new factory.
      *
-     * @param TranslatorInterface $translator
+     * @param \Illuminate\Validation\Factory $factory
      */
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(IlluminateValidationFactory $factory)
     {
-        $this->translator = $translator;
+        $this->factory = $factory;
     }
 
     /**
@@ -31,16 +31,16 @@ class Factory
      */
     public function make(ValidatableInterface $validatable)
     {
-        return new Validator($this->translator, $validatable);
+        return new Validator($this->factory, $validatable);
     }
 
     /**
-     * Returns translator instance.
+     * Returns illuminate validator factory instance.
      *
-     * @return \Symfony\Component\Translation\TranslatorInterface
+     * @return \Illuminate\Validation\Factory
      */
-    public function getTranslator()
+    public function getIlluminateValidationFactory()
     {
-        return $this->translator;
+        return $this->factory;
     }
 }
