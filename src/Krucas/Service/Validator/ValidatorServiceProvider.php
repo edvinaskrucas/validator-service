@@ -21,6 +21,8 @@ class ValidatorServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->package('edvinaskrucas/validator-service');
+
+        Validator::setEventDispatcher($this->app['events']);
     }
 
     /**
