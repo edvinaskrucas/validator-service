@@ -34,7 +34,14 @@ class ValidatorServiceProvider extends ServiceProvider
     {
         $this->app['validatorservice'] = $this->app->share(function($app)
         {
-            return new Factory(new IlluminateValidationFactory($app['translator']));
+            $illuminateFactory = new IlluminateValidationFactory($app['translator']);
+
+            if(isset($app['validation.presence']))
+            {
+                $illuminateFactory->setPresenceVerifier($app['validation.presence']);
+            }
+
+            return $illuminateFactory;
         });
     }
 
