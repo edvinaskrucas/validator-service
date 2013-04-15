@@ -23,6 +23,8 @@ class ValidatorServiceProvider extends ServiceProvider
         $this->package('edvinaskrucas/validator-service');
 
         Validator::setEventDispatcher($this->app['events']);
+
+        $this->app->make('validation.presence');
     }
 
     /**
