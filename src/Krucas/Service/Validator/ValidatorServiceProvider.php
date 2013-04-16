@@ -23,8 +23,6 @@ class ValidatorServiceProvider extends ServiceProvider
         $this->package('edvinaskrucas/validator-service');
 
         Validator::setEventDispatcher($this->app['events']);
-
-        $this->app->make('validation.presence');
     }
 
     /**
@@ -36,14 +34,7 @@ class ValidatorServiceProvider extends ServiceProvider
     {
         $this->app['validatorservice'] = $this->app->share(function($app)
         {
-            $illuminateFactory = new IlluminateValidationFactory($app['translator']);
-
-            if(isset($app['validation.presence']))
-            {
-                $illuminateFactory->setPresenceVerifier($app['validation.presence']);
-            }
-
-            return new Factory($illuminateFactory);
+            return new Factory($app['validator']);
         });
     }
 
