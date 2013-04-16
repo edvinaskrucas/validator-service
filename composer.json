@@ -1,6 +1,7 @@
 {
     "name": "edvinaskrucas/validator-service",
-    "description": "",
+    "keywords": ["laravel", "service", "validator"],
+    "description": "Validator service for a Laravel4",
     "authors": [
         {
             "name": "Edvinas Kručas",
