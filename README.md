@@ -28,7 +28,7 @@ Now you can use power of facades.
 
 ## Events
 
-Validator service uses events to let other components that validator is doing some checks.
+Validator service uses events to let other components to know that validator is doing some checks.
 
 Events before actual validation is started:
 * service.validator.validating
