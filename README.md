@@ -8,7 +8,7 @@ Simple, yet powered with features validator service to validate your data.
 
 ## Installation
 
-As it is using composer packaging system you need just to add this ```"edvinaskrucas/validator-service": "*""``` to your composer.json file and update your project.
+As it is using composer packaging system you need just to add this ```"edvinaskrucas/validator-service": "dev-master""``` to your composer.json file and update your project.
 
 ### Laravel service provider
 
