@@ -179,9 +179,14 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
     public function testValidationFailsWithEventsFailsOnGlobalEvent()
     {
-        $s = $this->getValidatorService();
         $this->setEventDispatcher();
 
+        \Krucas\Service\Validator\Validator::getEventDispatcher()
+            ->shouldReceive('until')
+            ->twice()
+            ->andReturn(true);
+
+        $s = $this->getValidatorService();
         $s->setAttributeRules('test', 'test');
 
         \Krucas\Service\Validator\Validator::getEventDispatcher()
@@ -197,9 +202,14 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
     public function testValidationFailsWithEventsFailsOnEvent()
     {
-        $s = $this->getValidatorService();
         $this->setEventDispatcher();
 
+        \Krucas\Service\Validator\Validator::getEventDispatcher()
+            ->shouldReceive('until')
+            ->twice()
+            ->andReturn(true);
+
+        $s = $this->getValidatorService();
         $s->setAttributeRules('test', 'test');
 
         \Krucas\Service\Validator\Validator::getEventDispatcher()
@@ -216,6 +226,52 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $this->assertFalse($s->passes());
         $this->assertNull($s->getErrors());
+    }
+
+
+    public function testArrayAccessForAttributes()
+    {
+        $s = $this->getValidatorService();
+
+        $s['test'] = 'test';
+
+        $this->assertEquals('test', $s['test']);
+        $this->assertFalse(isset($s['a']));
+
+        unset($s['test']);
+
+        $this->assertFalse(isset($s['test']));
+    }
+
+
+    public function testFailOnGlobalCreatedEvent()
+    {
+        $this->setEventDispatcher();
+
+        \Krucas\Service\Validator\Validator::getEventDispatcher()
+            ->shouldReceive('until')
+            ->once()
+            ->andReturn(false);
+
+        $this->assertFalse($this->getValidatorService()->isFurther());
+    }
+
+
+    public function testFailOnCreatedEvent()
+    {
+        $this->setEventDispatcher();
+
+        \Krucas\Service\Validator\Validator::getEventDispatcher()
+            ->shouldReceive('until')
+            ->once()
+            ->andReturn(true);
+
+        \Krucas\Service\Validator\Validator::getEventDispatcher()
+            ->shouldReceive('until')
+            ->once()
+            ->andReturn(false);
+
+        $this->assertFalse($this->getValidatorService()->isFurther());
     }
 
 

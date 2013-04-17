@@ -3,8 +3,9 @@
 use Illuminate\Events\Dispatcher;
 use Illuminate\Validation\Factory as IlluminateValidationFactory;
 use Krucas\Service\Validator\Contracts\ValidatableInterface;
+use ArrayAccess;
 
-class Validator
+class Validator implements \ArrayAccess
 {
     /**
      * Validation error messages, or null if no messages.
@@ -42,6 +43,13 @@ class Validator
     protected $factory;
 
     /**
+     * Allows further actions or not
+     *
+     * @var bool
+     */
+    protected $further = true;
+
+    /**
      * Event dispatcher instance.
      *
      * @var \Illuminate\Events\Dispatcher|null
@@ -61,6 +69,8 @@ class Validator
 
         $this->attributes   = $validatable->getValidationAttributes();
         $this->rules        = $validatable->getValidationRules();
+
+        if($this->fireEvent('created') === false) $this->further = false;
     }
 
     /**
@@ -70,6 +80,8 @@ class Validator
      */
     protected function validate()
     {
+        if($this->further === false) return false;
+
         if($this->fireEvent('validating') === false) return false;
 
         $validator = $this->factory->make($this->getAttributes(), $this->getRules());
@@ -97,7 +109,7 @@ class Validator
      */
     protected function fireEvent($event, $halt = true)
     {
-        if(!isset(static::$dispatcher)) return true;
+        if(is_null(static::$dispatcher)) return true;
 
         $globalEvent = "service.validator.{$event}";
         $event = $globalEvent.": ".get_class($this->validatable);
@@ -247,6 +259,16 @@ class Validator
     }
 
     /**
+     * Determines if validation actions after init will be executed.
+     *
+     * @return bool
+     */
+    public function isFurther()
+    {
+        return $this->further;
+    }
+
+    /**
      * Returns validatable object.
      *
      * @return \Krucas\Service\Validator\Contracts\ValidatableInterface
@@ -264,6 +286,49 @@ class Validator
     public function getFactory()
     {
         return $this->factory;
+    }
+
+    /**
+     * Determines if a attribute with a given key exists.
+     *
+     * @param mixed $offset
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        return isset($this->attributes[$offset]);
+    }
+
+    /**
+     * Returns attribute value of a given offset.
+     *
+     * @param mixed $offset
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        return $this->getAttributeValue($offset);
+    }
+
+    /**
+     * Sets attribute value for a given offset.
+     *
+     * @param mixed $offset
+     * @param mixed $value
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->setAttributeValue($offset, $value);
+    }
+
+    /**
+     * Unset attribute for a given offset.
+     *
+     * @param mixed $offset
+     */
+    public function offsetUnset($offset)
+    {
+        unset($this->attributes[$offset]);
     }
 
     /**
