@@ -73,6 +73,8 @@ class Validator implements ArrayAccess, MessageProviderInterface
      */
     public function __construct(IlluminateValidationFactory $factory, ValidatableInterface $validatable)
     {
+        if($this->fireEvent('creating') === false) $this->further = false;
+
         $this->factory      = $factory;
         $this->validatable  = $validatable;
 

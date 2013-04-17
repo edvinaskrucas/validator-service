@@ -187,7 +187,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         \Krucas\Service\Validator\Validator::getEventDispatcher()
             ->shouldReceive('until')
-            ->twice()
+            ->times(4)
             ->andReturn(true);
 
         $s = $this->getValidatorService();
@@ -211,7 +211,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         \Krucas\Service\Validator\Validator::getEventDispatcher()
             ->shouldReceive('until')
-            ->twice()
+            ->times(4)
             ->andReturn(true);
 
         $s = $this->getValidatorService();
@@ -256,6 +256,11 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         \Krucas\Service\Validator\Validator::getEventDispatcher()
             ->shouldReceive('until')
+            ->times(3)
+            ->andReturn(true);
+
+        \Krucas\Service\Validator\Validator::getEventDispatcher()
+            ->shouldReceive('until')
             ->once()
             ->andReturn(false);
 
@@ -269,7 +274,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         \Krucas\Service\Validator\Validator::getEventDispatcher()
             ->shouldReceive('until')
-            ->once()
+            ->times(3)
             ->andReturn(true);
 
         \Krucas\Service\Validator\Validator::getEventDispatcher()
