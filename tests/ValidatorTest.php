@@ -250,6 +250,26 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     }
 
 
+    public function testArrayAccessOnChildValidators()
+    {
+        $s = $this->getValidatorService();
+        $s->addChildValidator($c = $this->getValidatorService());
+
+        $s['parent'] = 'parent';
+        $c['child'] = 'child';
+
+        $this->assertEquals('parent', $s['parent']);
+        $this->assertEquals('child', $s['child']);
+
+        $this->assertFalse(isset($s['a']));
+        $this->assertTrue(isset($s['child']));
+
+        unset($s['child']);
+
+        $this->assertFalse(isset($s['child']));
+    }
+
+
     public function testFailOnGlobalCreatedEvent()
     {
         $this->setEventDispatcher();
