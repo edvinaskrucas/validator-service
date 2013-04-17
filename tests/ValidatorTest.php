@@ -312,11 +312,13 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $s
             ->addChildValidator($this->getValidatorService())
-            ->addChildValidator($this->getValidatorService());
+            ->addChildValidator($this->getValidatorService())
+            ->addChildValidator($this->getValidatorService(), 'test');
 
-        $this->assertCount(2, $s->getChildValidators());
-        $this->assertInstanceOf('Krucas\Service\Validator\Validator', $s->getChildValidators()[0]);
-        $this->assertInstanceOf('Krucas\Service\Validator\Validator', $s->getChildValidators()[1]);
+        $this->assertCount(3, $s->getChildValidators());
+        $this->assertInstanceOf('Krucas\Service\Validator\Validator', $s->getChildValidator(0));
+        $this->assertInstanceOf('Krucas\Service\Validator\Validator', $s->getChildValidator(1));
+        $this->assertInstanceOf('Krucas\Service\Validator\Validator', $s->getChildValidator('test'));
     }
 
 

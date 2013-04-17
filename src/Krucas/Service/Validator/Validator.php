@@ -321,13 +321,32 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      * Add a child validator.
      *
      * @param \Krucas\Service\Validator\Validator $validator
+     * @param null $name
      * @return \Krucas\Service\Validator\Validator
      */
-    public function addChildValidator(Validator $validator)
+    public function addChildValidator(Validator $validator, $name = null)
     {
-        $this->childValidators[] = $validator;
+        if(is_null($name))
+        {
+            $this->childValidators[] = $validator;
+        }
+        else
+        {
+            $this->childValidators[$name] = $validator;
+        }
 
         return $this;
+    }
+
+    /**
+     * Returns child validator based on its key / name.
+     *
+     * @param $key
+     * @return \Krucas\Service\Validator\Validator
+     */
+    public function getChildValidator($key)
+    {
+        return $this->childValidators[$key];
     }
 
     /**
