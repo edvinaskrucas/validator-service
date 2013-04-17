@@ -132,7 +132,8 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $s->getFactory()->shouldReceive('make')->once()->andReturn($validator = m::mock('Illuminate\Validation\Validator'));
         $validator->shouldReceive('passes')->once()->andReturn(false);
-        $validator->shouldReceive('errors')->once()->andReturn(m::mock('Illuminate\Support\MessageBag'));
+        $validator->shouldReceive('errors')->once()->andReturn($bag = m::mock('Illuminate\Support\MessageBag'));
+        $bag->shouldReceive('getMessages')->once()->andReturn(array('test' => 'test'));
         $s->setAttributeRules('test', 'test');
 
         $this->assertFalse($s->passes());
@@ -277,6 +278,42 @@ class ValidationTest extends PHPUnit_Framework_TestCase
             ->andReturn(false);
 
         $this->assertFalse($this->getValidatorService()->isFurther());
+    }
+
+
+    public function testAddChildValidator()
+    {
+        $s = $this->getValidatorService();
+
+        $s
+            ->addChildValidator($this->getValidatorService())
+            ->addChildValidator($this->getValidatorService());
+
+        $this->assertCount(2, $s->getChildValidators());
+        $this->assertInstanceOf('Krucas\Service\Validator\Validator', $s->getChildValidators()[0]);
+        $this->assertInstanceOf('Krucas\Service\Validator\Validator', $s->getChildValidators()[1]);
+    }
+
+
+    public function testValidateWithChildValidator()
+    {
+        $s = $this->getValidatorService();
+        $s->addChildValidator($child = $this->getValidatorService());
+
+        $s->getFactory()->shouldReceive('make')->once()->andReturn($validator = m::mock('Illuminate\Validation\Validator'));
+        $validator->shouldReceive('passes')->once()->andReturn(true);
+        $validator->shouldReceive('errors')->once()->andReturn($bag = m::mock('Illuminate\Support\MessageBag'));
+        $bag->shouldReceive('getMessages')->once()->andReturn(array('parent' => 'test'));
+
+        $child->getFactory()->shouldReceive('make')->once()->andReturn($childValidator = m::mock('Illuminate\Validation\Validator'));
+        $childValidator->shouldReceive('passes')->once()->andReturn(false);
+        $childValidator->shouldReceive('errors')->once()->andReturn($childBag = m::mock('Illuminate\Support\MessageBag'));
+        $childBag->shouldReceive('getMessages')->once()->andReturn(array('child' => 'test'));
+
+        $this->assertFalse($s->passes());
+        $this->assertCount(2, $s->getErrors());
+        $this->assertEquals('test', $s->getErrors()->first('parent'));
+        $this->assertEquals('test', $s->getErrors()->first('child'));
     }
 
 

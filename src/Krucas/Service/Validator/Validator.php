@@ -2,6 +2,7 @@
 
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Contracts\MessageProviderInterface;
+use Illuminate\Support\MessageBag;
 use Illuminate\Validation\Factory as IlluminateValidationFactory;
 use Krucas\Service\Validator\Contracts\ValidatableInterface;
 use ArrayAccess;
@@ -51,6 +52,13 @@ class Validator implements ArrayAccess, MessageProviderInterface
     protected $further = true;
 
     /**
+     * Child validator services.
+     *
+     * @var array
+     */
+    protected $childValidators = array();
+
+    /**
      * Event dispatcher instance.
      *
      * @var \Illuminate\Events\Dispatcher|null
@@ -85,13 +93,27 @@ class Validator implements ArrayAccess, MessageProviderInterface
 
         if($this->fireEvent('validating') === false) return false;
 
+        $passed = true;
+
+        foreach($this->childValidators as $childValidator)
+        {
+            if(!$childValidator->passes())
+            {
+                $passed = false;
+                $this->mergeErrors($childValidator->getErrors());
+            }
+        }
+
         $validator = $this->factory->make($this->getAttributes(), $this->getRules());
 
-        $passed = $validator->passes();
+        if(!$validator->passes())
+        {
+            $passed = false;
+        }
 
         if(!$passed)
         {
-            $this->errors = $validator->errors();
+            $this->mergeErrors($validator->errors());
         }
         else
         {
@@ -99,6 +121,13 @@ class Validator implements ArrayAccess, MessageProviderInterface
         }
 
         return $passed;
+    }
+
+    protected function mergeErrors(MessageBag $bag)
+    {
+        if(is_null($this->errors)) $this->errors = new MessageBag();
+
+        $this->errors->merge($bag->getMessages());
     }
 
     /**
@@ -267,6 +296,29 @@ class Validator implements ArrayAccess, MessageProviderInterface
     public function isFurther()
     {
         return $this->further;
+    }
+
+    /**
+     * Returns array of child validators.
+     *
+     * @return array
+     */
+    public function getChildValidators()
+    {
+        return $this->childValidators;
+    }
+
+    /**
+     * Add a child validator.
+     *
+     * @param \Krucas\Service\Validator\Validator $validator
+     * @return \Krucas\Service\Validator\Validator
+     */
+    public function addChildValidator(Validator $validator)
+    {
+        $this->childValidators[] = $validator;
+
+        return $this;
     }
 
     /**
