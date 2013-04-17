@@ -1,13 +1,14 @@
 <?php namespace Krucas\Service\Validator;
 
 use Illuminate\Events\Dispatcher;
+use Illuminate\Support\Contracts\ArrayableInterface;
 use Illuminate\Support\Contracts\MessageProviderInterface;
 use Illuminate\Support\MessageBag;
 use Illuminate\Validation\Factory as IlluminateValidationFactory;
 use Krucas\Service\Validator\Contracts\ValidatableInterface;
 use ArrayAccess;
 
-class Validator implements ArrayAccess, MessageProviderInterface
+class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInterface
 {
     /**
      * Validation error messages, or null if no messages.
@@ -433,6 +434,23 @@ class Validator implements ArrayAccess, MessageProviderInterface
         {
             unset($child[$offset]);
         }
+    }
+
+    /**
+     * Get the instance as an array.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        $arr = array();
+
+        foreach($this->getAttributes() as $attribute => $value)
+        {
+            $arr[$attribute] = array('value' => $value, 'rules' => $this->getAttributeRules($attribute));
+        }
+
+        return $arr;
     }
 
     /**
