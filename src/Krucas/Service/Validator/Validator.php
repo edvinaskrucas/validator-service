@@ -125,6 +125,12 @@ class Validator implements ArrayAccess, MessageProviderInterface
         return $passed;
     }
 
+    /**
+     * Merges messages.
+     *
+     * @param \Illuminate\Support\MessageBag $bag
+     * @return void
+     */
     protected function mergeErrors(MessageBag $bag)
     {
         if(is_null($this->errors)) $this->errors = new MessageBag();
