@@ -122,6 +122,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($s->passes());
         $this->assertNull($s->getErrors());
+        $this->assertNull($s->getMessageBag());
     }
 
 
@@ -136,6 +137,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $this->assertFalse($s->passes());
         $this->assertInstanceOf('Illuminate\Support\MessageBag', $s->getErrors());
+        $this->assertInstanceOf('Illuminate\Support\MessageBag', $s->getMessageBag());
     }
 
 
@@ -174,6 +176,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($s->passes());
         $this->assertNull($s->getErrors());
+        $this->assertNull($s->getMessageBag());
     }
 
 
@@ -197,6 +200,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $this->assertFalse($s->passes());
         $this->assertNull($s->getErrors());
+        $this->assertNull($s->getMessageBag());
     }
 
 
@@ -226,6 +230,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $this->assertFalse($s->passes());
         $this->assertNull($s->getErrors());
+        $this->assertNull($s->getMessageBag());
     }
 
 

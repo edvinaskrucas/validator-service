@@ -1,11 +1,12 @@
 <?php namespace Krucas\Service\Validator;
 
 use Illuminate\Events\Dispatcher;
+use Illuminate\Support\Contracts\MessageProviderInterface;
 use Illuminate\Validation\Factory as IlluminateValidationFactory;
 use Krucas\Service\Validator\Contracts\ValidatableInterface;
 use ArrayAccess;
 
-class Validator implements \ArrayAccess
+class Validator implements ArrayAccess, MessageProviderInterface
 {
     /**
      * Validation error messages, or null if no messages.
@@ -286,6 +287,16 @@ class Validator implements \ArrayAccess
     public function getFactory()
     {
         return $this->factory;
+    }
+
+    /**
+     * Get the messages for the instance.
+     *
+     * @return \Illuminate\Support\MessageBag
+     */
+    public function getMessageBag()
+    {
+        return $this->getErrors();
     }
 
     /**
