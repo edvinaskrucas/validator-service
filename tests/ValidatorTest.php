@@ -79,6 +79,23 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     }
 
 
+    public function testSetValuesWithRules()
+    {
+        $s = $this->getValidatorService();
+
+        $s->setValuesWithRules(array(
+            'test' => array('value' => 'test', 'rules' => 'a|b|c'),
+            'same' => array('value' => 'same', 'rules' => 'b|c|a')
+        ));
+
+        $this->assertEquals(
+            array(
+                'test' => array('value' => 'test', 'rules' => 'a|b|c'),
+                'same' => array('value' => 'same', 'rules' => 'b|c|a')
+            ), $s->getValuesWithRules());
+    }
+
+
     public function testRemoveAttribute()
     {
         $s = $this->getValidatorService();
