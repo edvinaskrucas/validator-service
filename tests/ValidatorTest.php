@@ -83,7 +83,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     {
         $s = $this->getValidatorService();
 
-        $s->setValuesWithRules(array(
+        $s->setAttributes(array(
             'test' => array('value' => 'test', 'rules' => 'a|b|c'),
             'same' => array('value' => 'same', 'rules' => 'b|c|a')
         ));
@@ -92,7 +92,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
             array(
                 'test' => array('value' => 'test', 'rules' => 'a|b|c'),
                 'same' => array('value' => 'same', 'rules' => 'b|c|a')
-            ), $s->getValuesWithRules());
+            ), $s->getAttributes());
     }
 
 
@@ -100,15 +100,15 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     {
         $s = $this->getValidatorService();
 
-        $s->setAttributes(array('foo' => 'bar', 'bar' => 'foo'));
+        $s->setValues(array('foo' => 'bar', 'bar' => 'foo'));
         $s->setRules(array('foo' => 'test', 'bar' => 'test'));
 
-        $this->assertEquals(array('foo' => 'bar', 'bar' => 'foo'), $s->getAttributes());
+        $this->assertEquals(array('foo' => 'bar', 'bar' => 'foo'), $s->getValues());
         $this->assertEquals(array('foo' => 'test', 'bar' => 'test'), $s->getRules());
 
         $s->removeAttribute('foo');
 
-        $this->assertEquals(array('bar' => 'foo'), $s->getAttributes());
+        $this->assertEquals(array('bar' => 'foo'), $s->getValues());
         $this->assertEquals(array('bar' => 'test'), $s->getRules());
     }
 

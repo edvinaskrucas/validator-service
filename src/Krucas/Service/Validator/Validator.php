@@ -25,14 +25,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
     protected $validatable;
 
     /**
-     * Rules to check against.
-     *
-     * @var array
-     */
-    protected $rules = array();
-
-    /**
-     * Attributes to check against rules.
+     * Attribute names with value and rules.
      *
      * @var array
      */
@@ -181,23 +174,20 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
     }
 
     /**
-     * Returns attributes keys with its values.
-     *
-     * @return array
-     */
-    public function getAttributes()
-    {
-        return $this->attributes;
-    }
-
-    /**
      * Returns validation rules.
      *
      * @return array
      */
     public function getRules()
     {
-        return $this->rules;
+        $arr = array();
+
+        foreach($this->attributes as $attribute => $values)
+        {
+            $arr[$attribute] = $values['rules'];
+        }
+
+        return $arr;
     }
 
     /**
@@ -208,13 +198,59 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function setRules(array $rules = array())
     {
-        $this->rules = $rules;
+        foreach($rules as $attribute => $rule)
+        {
+            $this->setAttributeRules($attribute, $rule);
+        }
 
         return $this;
     }
 
     /**
-     * Sets attributes and its values.
+     * Sets attributes values.
+     *
+     * @param array $values
+     * @return \Krucas\Service\Validator\Validator
+     */
+    public function setValues(array $values = array())
+    {
+        foreach($values as $attribute => $value)
+        {
+            $this->setAttributeValue($attribute, $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Returns attributes values.
+     *
+     * @return array
+     */
+    public function getValues()
+    {
+        $arr = array();
+
+        foreach($this->attributes as $attribute => $values)
+        {
+            $arr[$attribute] = $values['value'];
+        }
+
+        return $arr;
+    }
+
+    /**
+     * Returns attributes keys with its values.
+     *
+     * @return array
+     */
+    public function getAttributes()
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * Sets attributes values with rules.
      *
      * @param array $attributes
      * @return \Krucas\Service\Validator\Validator
@@ -227,41 +263,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
     }
 
     /**
-     * Sets attributes values with rules.
-     *
-     * @param array $attributes
-     * @return \Krucas\Service\Validator\Validator
-     */
-    public function setValuesWithRules(array $attributes = array())
-    {
-        foreach($attributes as $attribute => $values)
-        {
-            $this->attributes[$attribute]   = $values['value'];
-            $this->rules[$attribute]        = $values['rules'];
-        }
-
-        return $this;
-    }
-
-    /**
-     * Returns all attributes values with rules.
-     *
-     * @return array
-     */
-    public function getValuesWithRules()
-    {
-        $arr = array();
-
-        foreach($this->attributes as $attr => $value)
-        {
-            $arr[$attr] = array('value' => $value, 'rules' => $this->getAttributeRules($attr));
-        }
-
-        return $arr;
-    }
-
-    /**
-     * Sets rules of a given attribute.
+     * Sets rules for a given attribute.
      *
      * @param string $attribute
      * @param string $rules
@@ -269,7 +271,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function setAttributeRules($attribute, $rules)
     {
-        $this->rules[$attribute] = $rules;
+        array_set($this->attributes, $attribute.'.rules', $rules);
 
         return $this;
     }
@@ -282,7 +284,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function getAttributeRules($attribute)
     {
-        return isset($this->rules[$attribute]) ? $this->rules[$attribute] : null;
+        return array_get($this->attributes, $attribute.'.rules', null);
     }
 
     /**
@@ -293,7 +295,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function getAttributeValue($attribute)
     {
-        return isset($this->attributes[$attribute]) ? $this->attributes[$attribute] : null;
+        return array_get($this->attributes, $attribute.'.value', null);
     }
 
     /**
@@ -305,7 +307,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function setAttributeValue($attribute, $value)
     {
-        $this->attributes[$attribute] = $value;
+        array_set($this->attributes, $attribute.'.value', $value);
 
         return $this;
     }
@@ -318,15 +320,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function removeAttribute($attribute)
     {
-        if(isset($this->attributes[$attribute]))
-        {
-            unset($this->attributes[$attribute]);
-        }
-
-        if(isset($this->rules[$attribute]))
-        {
-            unset($this->rules[$attribute]);
-        }
+        array_forget($this->attributes, $attribute);
 
         return $this;
     }
