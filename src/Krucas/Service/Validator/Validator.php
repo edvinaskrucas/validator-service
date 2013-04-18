@@ -263,6 +263,23 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
     }
 
     /**
+     * Adds new attribtues to attributes array.
+     *
+     * @param array $attributes
+     * @return \Krucas\Service\Validator\Validator
+     */
+    public function addAttributes(array $attributes = array())
+    {
+        foreach($attributes as $attribute => $values)
+        {
+            $this->setAttributeValue($attribute, $values['value']);
+            $this->setAttributeRules($attribute, $values['rules']);
+        }
+
+        return $this;
+    }
+
+    /**
      * Sets rules for a given attribute.
      *
      * @param string $attribute
