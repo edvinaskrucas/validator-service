@@ -285,33 +285,21 @@ class ValidationTest extends PHPUnit_Framework_TestCase
         $s = $this->getValidatorService();
 
         $s['test'] = 'test';
+        $s['test.rules'] = 'a|b';
+
+        $s['a'] = array('value' => 'b', 'rules' => 'b|a');
 
         $this->assertEquals('test', $s['test']);
-        $this->assertFalse(isset($s['a']));
+        $this->assertEquals('test', $s['test.value']);
+        $this->assertEquals('a|b', $s['test.rules']);
+        $this->assertTrue(isset($s['a']));
+        $this->assertEquals('b', $s['a']);
+        $this->assertEquals('b', $s['a.value']);
+        $this->assertEquals('b|a', $s['a.rules']);
 
         unset($s['test']);
 
         $this->assertFalse(isset($s['test']));
-    }
-
-
-    public function testArrayAccessOnChildValidators()
-    {
-        $s = $this->getValidatorService();
-        $s->addChildValidator($c = $this->getValidatorService());
-
-        $s['parent'] = 'parent';
-        $c['child'] = 'child';
-
-        $this->assertEquals('parent', $s['parent']);
-        $this->assertEquals('child', $s['child']);
-
-        $this->assertFalse(isset($s['a']));
-        $this->assertTrue(isset($s['child']));
-
-        unset($s['child']);
-
-        $this->assertFalse(isset($s['child']));
     }
 
 

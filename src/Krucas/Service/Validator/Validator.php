@@ -288,7 +288,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function setAttributeRules($attribute, $rules)
     {
-        array_set($this->attributes, $attribute.'.rules', $rules);
+        array_set($this->attributes, ends_with($attribute, '.rules') ? $attribute : $attribute.'.rules', $rules);
 
         return $this;
     }
@@ -301,7 +301,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function getAttributeRules($attribute)
     {
-        return array_get($this->attributes, $attribute.'.rules', null);
+        return array_get($this->attributes, ends_with($attribute, '.rules') ? $attribute : $attribute.'.rules', null);
     }
 
     /**
@@ -312,7 +312,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function getAttributeValue($attribute)
     {
-        return array_get($this->attributes, $attribute.'.value', null);
+        return array_get($this->attributes, ends_with($attribute, '.value') ? $attribute : $attribute.'.value', null);
     }
 
     /**
@@ -324,7 +324,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function setAttributeValue($attribute, $value)
     {
-        array_set($this->attributes, $attribute.'.value', $value);
+        array_set($this->attributes, ends_with($attribute, '.value') ? $attribute : $attribute.'.value', $value);
 
         return $this;
     }
@@ -432,22 +432,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function offsetExists($offset)
     {
-        if(isset($this->attributes[$offset]))
-        {
-            return true;
-        }
-        else
-        {
-            foreach($this->childValidators as $child)
-            {
-                if(isset($child[$offset]))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return array_key_exists($offset, $this->attributes);
     }
 
     /**
@@ -458,17 +443,19 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function offsetGet($offset)
     {
-        if(!is_null($this->getAttributeValue($offset)))
+        $keys = explode('.', $offset);
+
+        if(last($keys) == 'value')
         {
             return $this->getAttributeValue($offset);
         }
-
-        foreach($this->childValidators as $child)
+        elseif(last($keys) == 'rules')
         {
-            if(!is_null($child[$offset]))
-            {
-                return $child[$offset];
-            }
+            return $this->getAttributeRules($offset);
+        }
+        else
+        {
+            return $this->getAttributeValue($offset);
         }
 
         return null;
@@ -482,7 +469,27 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function offsetSet($offset, $value)
     {
-        $this->setAttributeValue($offset, $value);
+        if(is_array($value))
+        {
+            $this->addAttributes(array($offset => $value));
+        }
+        else
+        {
+            $keys = explode('.', $offset);
+
+            if(last($keys) == 'value')
+            {
+                $this->setAttributeValue($offset, $value);
+            }
+            elseif(last($keys) == 'rules')
+            {
+                $this->setAttributeRules($offset, $value);
+            }
+            else
+            {
+                $this->setAttributeValue($offset, $value);
+            }
+        }
     }
 
     /**
@@ -492,12 +499,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function offsetUnset($offset)
     {
-        unset($this->attributes[$offset]);
-
-        foreach($this->childValidators as $child)
-        {
-            unset($child[$offset]);
-        }
+        array_forget($this->attributes, $offset);
     }
 
     /**
