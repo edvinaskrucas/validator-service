@@ -113,6 +113,16 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     }
 
 
+    public function testToArray()
+    {
+        $s = $this->getValidatorService();
+
+        $s->setAttributes(array('tet' => array('value' => 'test', 'rules' => 'a|b')));
+
+        $this->assertEquals(array('tet' => array('value' => 'test', 'rules' => 'a|b')), $s->toArray());
+    }
+
+
     public function testEventDispatcherSetUp()
     {
         $s = $this->getValidatorService();

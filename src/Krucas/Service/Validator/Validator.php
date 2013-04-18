@@ -490,14 +490,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function toArray()
     {
-        $arr = array();
-
-        foreach($this->getAttributes() as $attribute => $value)
-        {
-            $arr[$attribute] = array('value' => $value, 'rules' => $this->getAttributeRules($attribute));
-        }
-
-        return $arr;
+        return $this->attributes;
     }
 
     /**
