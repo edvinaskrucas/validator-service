@@ -288,7 +288,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function setAttributeRules($attribute, $rules)
     {
-        array_set($this->attributes, ends_with($attribute, '.rules') ? $attribute : $attribute.'.rules', $rules);
+        $this->arraySet(ends_with($attribute, '.rules') ? $attribute : $attribute.'.rules', $rules);
 
         return $this;
     }
@@ -301,7 +301,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function getAttributeRules($attribute)
     {
-        return array_get($this->attributes, ends_with($attribute, '.rules') ? $attribute : $attribute.'.rules', null);
+        return array_get($this->toArray(), ends_with($attribute, '.rules') ? $attribute : $attribute.'.rules', null);
     }
 
     /**
@@ -312,7 +312,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function getAttributeValue($attribute)
     {
-        return array_get($this->attributes, ends_with($attribute, '.value') ? $attribute : $attribute.'.value', null);
+        return array_get($this->toArray(), ends_with($attribute, '.value') ? $attribute : $attribute.'.value', null);
     }
 
     /**
@@ -324,7 +324,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function setAttributeValue($attribute, $value)
     {
-        array_set($this->attributes, ends_with($attribute, '.value') ? $attribute : $attribute.'.value', $value);
+        $this->arraySet(ends_with($attribute, '.value') ? $attribute : $attribute.'.value', $value);
 
         return $this;
     }
@@ -337,7 +337,20 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function removeAttribute($attribute)
     {
-        array_forget($this->attributes, $attribute);
+        $keys = explode('.', $attribute);
+
+        $count = 1;
+
+        if(last($keys) == 'value' || last($keys) == 'rules') $count = 2;
+
+        if(count($keys) == $count)
+        {
+            array_forget($this->attributes, $attribute);
+        }
+        else
+        {
+            $this->childValidators[array_shift($keys)]->removeAttribute(implode('.', $keys));
+        }
 
         return $this;
     }
@@ -432,7 +445,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function offsetExists($offset)
     {
-        return array_key_exists($offset, $this->attributes);
+        return array_get($this->toArray(), $offset) ? true : false;
     }
 
     /**
@@ -499,7 +512,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function offsetUnset($offset)
     {
-        array_forget($this->attributes, $offset);
+        $this->removeAttribute($offset);
     }
 
     /**
@@ -509,7 +522,34 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function toArray()
     {
-        return $this->attributes;
+        $arr = $this->attributes;
+
+        foreach($this->childValidators as $name => $validator)
+        {
+            $arr[$name] = $validator->toArray();
+        }
+
+        return $arr;
+    }
+
+    /**
+     * Set value using dot syntax to proper array.
+     *
+     * @param $offset
+     * @param $value
+     */
+    protected function arraySet($offset, $value)
+    {
+        $keys = explode('.', $offset);
+
+        if(count($keys) == 2)
+        {
+            array_set($this->attributes, $offset, $value);
+        }
+        else
+        {
+            $this->childValidators[array_shift($keys)][implode('.', $keys)] = $value;
+        }
     }
 
     /**

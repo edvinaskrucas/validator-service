@@ -135,10 +135,29 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     {
         $s = $this->getValidatorService();
 
-        $s->setAttributes(array('tet' => array('value' => 'test', 'rules' => 'a|b')));
+        $s->setAttributes(array('test' => array('value' => 'test', 'rules' => 'a|b')));
 
-        $this->assertEquals(array('tet' => array('value' => 'test', 'rules' => 'a|b')), $s->toArray());
+        $this->assertEquals(array('test' => array('value' => 'test', 'rules' => 'a|b')), $s->toArray());
     }
+
+
+    public function testToArrayWithChild()
+    {
+        $s = $this->getValidatorService();
+        $s->addChildValidator($c = $this->getValidatorService(), 'c');
+
+        $s->setAttributeValue('test', 'test');
+        $c->setAttributeValue('child', 'child');
+
+        $this->assertEquals(
+            array(
+                'test' => array('value' => 'test'),
+                'c' => array(
+                    'child' => array('value' => 'child')
+                )
+            ), $s->toArray());
+    }
+
 
 
     public function testEventDispatcherSetUp()
@@ -300,6 +319,29 @@ class ValidationTest extends PHPUnit_Framework_TestCase
         unset($s['test']);
 
         $this->assertFalse(isset($s['test']));
+    }
+
+
+    public function testArrayAccessOnChildValidators()
+    {
+        $s = $this->getValidatorService();
+        $s->addChildValidator($c = $this->getValidatorService(), 'child');
+
+        $s['parent'] = 'parent';
+        $c['child'] = array('value' => 'child', 'rules' => 'a');
+        $s['child.a'] = 'b';
+
+        $this->assertEquals('parent', $s['parent']);
+        $this->assertEquals('child', $s['child.child']);
+        $this->assertEquals('a', $s['child.child.rules']);
+        $this->assertEquals('b', $s['child.a']);
+
+        $this->assertFalse(isset($s['a']));
+        $this->assertTrue(isset($s['child.child']));
+
+        unset($s['child.child']);
+
+        $this->assertFalse(isset($s['child.child']));
     }
 
 
