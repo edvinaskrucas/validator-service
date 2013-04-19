@@ -100,7 +100,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
             }
         }
 
-        $validator = $this->factory->make($this->getAttributes(), $this->getRules());
+        $validator = $this->factory->make($this->getValues(), $this->getRules());
 
         if(!$validator->passes())
         {
@@ -184,7 +184,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
 
         foreach($this->attributes as $attribute => $values)
         {
-            $arr[$attribute] = $values['rules'];
+            $arr[$attribute] = $this->getAttributeRules($attribute);
         }
 
         return $arr;
@@ -233,7 +233,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
 
         foreach($this->attributes as $attribute => $values)
         {
-            $arr[$attribute] = $values['value'];
+            $arr[$attribute] = $this->getAttributeValue($attribute);
         }
 
         return $arr;
