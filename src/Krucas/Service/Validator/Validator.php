@@ -72,8 +72,8 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
         $this->factory      = $factory;
         $this->validatable  = $validatable;
 
-        $this->attributes   = $validatable->getValidationAttributes();
-        $this->rules        = $validatable->getValidationRules();
+        $this->setValues($validatable->getValidationAttributes());
+        $this->setRules($validatable->getValidationRules());
 
         if($this->fireEvent('created') === false) $this->further = false;
     }
