@@ -141,24 +141,6 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     }
 
 
-    public function testToArrayWithChild()
-    {
-        $s = $this->getValidatorService();
-        $s->addChildValidator($c = $this->getValidatorService(), 'c');
-
-        $s->setAttributeValue('test', 'test');
-        $c->setAttributeValue('child', 'child');
-
-        $this->assertEquals(
-            array(
-                'test' => array('value' => 'test'),
-                'c' => array(
-                    'child' => array('value' => 'child')
-                )
-            ), $s->toArray());
-    }
-
-
 
     public function testEventDispatcherSetUp()
     {
@@ -197,7 +179,6 @@ class ValidationTest extends PHPUnit_Framework_TestCase
         $s->getFactory()->shouldReceive('make')->once()->andReturn($validator = m::mock('Illuminate\Validation\Validator'));
         $validator->shouldReceive('passes')->once()->andReturn(false);
         $validator->shouldReceive('errors')->once()->andReturn($bag = m::mock('Illuminate\Support\MessageBag'));
-        $bag->shouldReceive('getMessages')->once()->andReturn(array('test' => 'test'));
         $s->setAttributeRules('test', 'test');
 
         $this->assertFalse($s->passes());
@@ -322,29 +303,6 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     }
 
 
-    public function testArrayAccessOnChildValidators()
-    {
-        $s = $this->getValidatorService();
-        $s->addChildValidator($c = $this->getValidatorService(), 'child');
-
-        $s['parent'] = 'parent';
-        $c['child'] = array('value' => 'child', 'rules' => 'a');
-        $s['child.a'] = 'b';
-
-        $this->assertEquals('parent', $s['parent']);
-        $this->assertEquals('child', $s['child.child']);
-        $this->assertEquals('a', $s['child.child.rules']);
-        $this->assertEquals('b', $s['child.a']);
-
-        $this->assertFalse(isset($s['a']));
-        $this->assertTrue(isset($s['child.child']));
-
-        unset($s['child.child']);
-
-        $this->assertFalse(isset($s['child.child']));
-    }
-
-
     public function testFailOnGlobalCreatedEvent()
     {
         $this->setEventDispatcher();
@@ -381,44 +339,6 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     }
 
 
-    public function testAddChildValidator()
-    {
-        $s = $this->getValidatorService();
-
-        $s
-            ->addChildValidator($this->getValidatorService())
-            ->addChildValidator($this->getValidatorService())
-            ->addChildValidator($this->getValidatorService(), 'test');
-
-        $this->assertCount(3, $s->getChildValidators());
-        $this->assertInstanceOf('Krucas\Service\Validator\Validator', $s->getChildValidator(0));
-        $this->assertInstanceOf('Krucas\Service\Validator\Validator', $s->getChildValidator(1));
-        $this->assertInstanceOf('Krucas\Service\Validator\Validator', $s->getChildValidator('test'));
-    }
-
-
-    public function testValidateWithChildValidator()
-    {
-        $s = $this->getValidatorService();
-        $s->addChildValidator($child = $this->getValidatorService());
-
-        $s->getFactory()->shouldReceive('make')->once()->andReturn($validator = m::mock('Illuminate\Validation\Validator'));
-        $validator->shouldReceive('passes')->once()->andReturn(true);
-        $validator->shouldReceive('errors')->once()->andReturn($bag = m::mock('Illuminate\Support\MessageBag'));
-        $bag->shouldReceive('getMessages')->once()->andReturn(array('parent' => 'test'));
-
-        $child->getFactory()->shouldReceive('make')->once()->andReturn($childValidator = m::mock('Illuminate\Validation\Validator'));
-        $childValidator->shouldReceive('passes')->once()->andReturn(false);
-        $childValidator->shouldReceive('errors')->once()->andReturn($childBag = m::mock('Illuminate\Support\MessageBag'));
-        $childBag->shouldReceive('getMessages')->once()->andReturn(array('child' => 'test'));
-
-        $this->assertFalse($s->passes());
-        $this->assertCount(2, $s->getErrors());
-        $this->assertEquals('test', $s->getErrors()->first('parent'));
-        $this->assertEquals('test', $s->getErrors()->first('child'));
-    }
-
-
     public function setEventDispatcher()
     {
         \Krucas\Service\Validator\Validator::setEventDispatcher(m::mock('Illuminate\Events\Dispatcher'));
@@ -429,7 +349,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     {
         $mock = m::mock('Krucas\Service\Validator\Contracts\ValidatableInterface');
 
-        $mock->shouldReceive('getValidationAttributes')->once()->andReturn(array());
+        $mock->shouldReceive('getValidationValues')->once()->andReturn(array());
         $mock->shouldReceive('getValidationRules')->once()->andReturn(array());
 
         return new \Krucas\Service\Validator\Validator(

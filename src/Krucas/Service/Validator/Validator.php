@@ -46,13 +46,6 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
     protected $further = true;
 
     /**
-     * Child validator services.
-     *
-     * @var array
-     */
-    protected $childValidators = array();
-
-    /**
      * Event dispatcher instance.
      *
      * @var \Illuminate\Events\Dispatcher|null
@@ -72,7 +65,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
         $this->factory      = $factory;
         $this->validatable  = $validatable;
 
-        $this->setValues($validatable->getValidationAttributes());
+        $this->setValues($validatable->getValidationValues());
         $this->setRules($validatable->getValidationRules());
 
         if($this->fireEvent('created') === false) $this->further = false;
@@ -89,27 +82,13 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
 
         if($this->fireEvent('validating') === false) return false;
 
-        $passed = true;
-
-        foreach($this->childValidators as $childValidator)
-        {
-            if(!$childValidator->passes())
-            {
-                $passed = false;
-                $this->mergeErrors($childValidator->getErrors());
-            }
-        }
-
         $validator = $this->factory->make($this->getValues(), $this->getRules());
 
-        if(!$validator->passes())
-        {
-            $passed = false;
-        }
+        $passed = $validator->passes();
 
         if(!$passed)
         {
-            $this->mergeErrors($validator->errors());
+            $this->errors = $validator->errors();
         }
         else
         {
@@ -117,19 +96,6 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
         }
 
         return $passed;
-    }
-
-    /**
-     * Merges messages.
-     *
-     * @param \Illuminate\Support\MessageBag $bag
-     * @return void
-     */
-    protected function mergeErrors(MessageBag $bag)
-    {
-        if(is_null($this->errors)) $this->errors = new MessageBag();
-
-        $this->errors->merge($bag->getMessages());
     }
 
     /**
@@ -347,10 +313,6 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
         {
             array_forget($this->attributes, $attribute);
         }
-        else
-        {
-            $this->childValidators[array_shift($keys)]->removeAttribute(implode('.', $keys));
-        }
 
         return $this;
     }
@@ -363,48 +325,6 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
     public function isFurther()
     {
         return $this->further;
-    }
-
-    /**
-     * Returns array of child validators.
-     *
-     * @return array
-     */
-    public function getChildValidators()
-    {
-        return $this->childValidators;
-    }
-
-    /**
-     * Add a child validator.
-     *
-     * @param \Krucas\Service\Validator\Validator $validator
-     * @param null $name
-     * @return \Krucas\Service\Validator\Validator
-     */
-    public function addChildValidator(Validator $validator, $name = null)
-    {
-        if(is_null($name))
-        {
-            $this->childValidators[] = $validator;
-        }
-        else
-        {
-            $this->childValidators[$name] = $validator;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Returns child validator based on its key / name.
-     *
-     * @param $key
-     * @return \Krucas\Service\Validator\Validator
-     */
-    public function getChildValidator($key)
-    {
-        return $this->childValidators[$key];
     }
 
     /**
@@ -522,14 +442,7 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
      */
     public function toArray()
     {
-        $arr = $this->attributes;
-
-        foreach($this->childValidators as $name => $validator)
-        {
-            $arr[$name] = $validator->toArray();
-        }
-
-        return $arr;
+        return $this->attributes;
     }
 
     /**
@@ -545,10 +458,6 @@ class Validator implements ArrayAccess, MessageProviderInterface, ArrayableInter
         if(count($keys) == 2)
         {
             array_set($this->attributes, $offset, $value);
-        }
-        else
-        {
-            $this->childValidators[array_shift($keys)][implode('.', $keys)] = $value;
         }
     }
 

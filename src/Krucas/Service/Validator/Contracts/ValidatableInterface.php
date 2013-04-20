@@ -10,9 +10,9 @@ interface ValidatableInterface
     public function getValidationRules();
 
     /**
-     * Returns array of attributes to be validated.
+     * Returns array of values to be validated.
      *
      * @return array
      */
-    public function getValidationAttributes();
+    public function getValidationValues();
 }
