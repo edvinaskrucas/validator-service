@@ -30,6 +30,10 @@ Now you can use power of facades.
 
 Validator service uses events to let other components to know that validator is doing some checks.
 
+Events just after validator instance is being created:
+* service.validator.creating
+* service.validator.creating: Vendor\Package\Class
+
 Events just after validator instance was created:
 * service.validator.created
 * service.validator.created: Vendor\Package\Class
@@ -43,6 +47,14 @@ Events after validation:
 * service.validator.validated: Vendor\Package\Class
 
 Lets overview them quickly.
+
+### service.validator.creating
+
+This is triggered before rules + attributes assigned. If some listener returns ```false``` then validation will return false automatically without validating.
+
+### service.validator.creating: Vendor\Package\Class
+
+Same as above just with a certain class name.
 
 ### service.validator.created
 
@@ -92,7 +104,7 @@ class Page extends Eloquent implements Krucas\Service\Validator\Contracts\Valida
         );
     }
 
-    public function getValidationAttributes()
+    public function getValidationValues()
     {
         return $this->attributes;
     }
